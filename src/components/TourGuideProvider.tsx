@@ -1,6 +1,6 @@
 import mitt from 'mitt'
 import * as React from 'react'
-import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
+import { findNodeHandle, StyleProp, StyleSheet, View, ViewStyle } from 'react-native'
 import { TourGuideContext } from '../components/TourGuideContext'
 import { useIsMounted } from '../hooks/useIsMounted'
 import { IStep, Labels, StepObject, Steps } from '../types'
@@ -50,6 +50,7 @@ export const TourGuideProvider = ({
   const [currentStep, updateCurrentStep] = useState<IStep | undefined>()
   const [steps, setSteps] = useState<Steps>({})
   const [canStart, setCanStart] = useState<boolean>(false)
+  const [scrollView, setScrollView] = useState<React.RefObject>(null);
 
   const startTries = useRef<number>(0)
   const mounted = useIsMounted()
@@ -66,7 +67,7 @@ export const TourGuideProvider = ({
 
   useEffect(() => {
     if (visible || currentStep) {
-      moveToCurrentStep()
+      setTimeout( moveToCurrentStep, scrollView ? 250 : 0);
     }
   }, [visible, currentStep])
 
@@ -92,12 +93,26 @@ export const TourGuideProvider = ({
 
   const setCurrentStep = (step?: IStep) =>
     new Promise<void>((resolve) => {
+    if(scrollView && step){
+      step.wrapper.measureLayout(
+          findNodeHandle(scrollView),(x: number,y: number,h: number)=> {
+              const yOffset = y > 0 ? y-(h/2) : 0;
+              scrollView.scrollToPosition(x,yOffset, true);
+              updateCurrentStep(() => {
+                  eventEmitter.emit('stepChange', step);
+                  resolve();
+                  return step;
+              });
+          }
+      )
+    }else{
       updateCurrentStep(() => {
-        eventEmitter.emit('stepChange', step)
-        resolve()
-        return step
-      })
-    })
+          eventEmitter.emit('stepChange', step);
+          resolve();
+          return step;
+      });
+    }
+  })
 
   const getNextStep = (step: IStep | undefined = currentStep) =>
     utils.getNextStep(steps!, step)
@@ -146,7 +161,10 @@ export const TourGuideProvider = ({
 
   const getCurrentStep = () => currentStep
 
-  const start = async (fromStep?: number) => {
+  const start = async (fromStep?: number, scrollView?: React.RefObject) => {
+    if(scrollView){
+      setScrollView(scrollView)
+    }
     const currentStep = fromStep
       ? (steps as StepObject)[fromStep]
       : getFirstStep()
