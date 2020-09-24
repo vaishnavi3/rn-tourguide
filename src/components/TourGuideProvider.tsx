@@ -50,7 +50,7 @@ export const TourGuideProvider = ({
   const [currentStep, updateCurrentStep] = useState<IStep | undefined>()
   const [steps, setSteps] = useState<Steps>({})
   const [canStart, setCanStart] = useState<boolean>(false)
-  const [scrollView, setScrollView] = useState<React.RefObject>(null);
+  const [scrollView, setScrollView] = useState<any>(null);
 
   const startTries = useRef<number>(0)
   const mounted = useIsMounted()
@@ -86,8 +86,8 @@ export const TourGuideProvider = ({
     await modal.current?.animateMove({
       width: size.width + OFFSET_WIDTH,
       height: size.height + OFFSET_WIDTH,
-      left: size.x - OFFSET_WIDTH / 2,
-      top: size.y - OFFSET_WIDTH / 2 + (verticalOffset || 0),
+      left: size.x - (OFFSET_WIDTH / 2),
+      top: (size.y - (OFFSET_WIDTH / 2)) + (verticalOffset || 0),
     })
   }
 
@@ -161,7 +161,7 @@ export const TourGuideProvider = ({
 
   const getCurrentStep = () => currentStep
 
-  const start = async (fromStep?: number, scrollView?: React.RefObject) => {
+  const start = async (fromStep?: number, scrollView?: any) => {
     if(scrollView){
       setScrollView(scrollView)
     }

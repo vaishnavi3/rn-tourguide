@@ -10,6 +10,7 @@ import {
   View,
   ViewStyle,
 } from 'react-native'
+import {Portal} from 'react-native-paper'
 import { BorderRadiusObject, IStep, Labels, ValueXY } from '../types'
 import styles, { MARGIN } from './style'
 import { SvgMask } from './SvgMask'
@@ -307,23 +308,25 @@ export class Modal extends React.Component<ModalProps, State> {
       return null
     }
     return (
-      <View
-        style={[StyleSheet.absoluteFill, { backgroundColor: 'transparent' }]}
-        pointerEvents='box-none'
-      >
+      <Portal>
         <View
-          style={styles.container}
-          onLayout={this.handleLayoutChange}
+          style={[StyleSheet.absoluteFill, { backgroundColor: 'transparent' }]}
           pointerEvents='box-none'
         >
-          {contentVisible && (
-            <>
-              {this.renderMask()}
-              {this.renderTooltip()}
-            </>
-          )}
+          <View
+            style={styles.container}
+            onLayout={this.handleLayoutChange}
+            pointerEvents='box-none'
+          >
+            {contentVisible && (
+              <>
+                {this.renderMask()}
+                {this.renderTooltip()}
+              </>
+            )}
+          </View>
         </View>
-      </View>
+      </Portal>
     )
   }
 }

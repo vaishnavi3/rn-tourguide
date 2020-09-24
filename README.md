@@ -163,6 +163,37 @@ const AppContent = () => {
 }
 ```
 
+### Usage inside a ScrollView
+
+Pass the ScrollView reference as the second argument to the `start()` function.
+eg `start(1, ScrollViewRef)`
+
+```js
+import { ScrollView } from "react-native";
+
+const HomeScreen = () => {
+  // Use Hooks to control!
+  const {
+    start, // a function to start the tourguide
+  } = useTourGuideController();
+
+  // Can start at mount 🎉
+  // you need to wait until everything is registered 😁
+  React.useEffect(() => {
+    if (canStart) {
+      // 👈 test if you can start otherwise nothing will happen
+      start(1, scrollView);
+    }
+  }, [canStart]) // 👈 don't miss it!
+
+  render() {
+    <ScrollView ref={ref => (scrollView = ref)}>
+      // ...
+    </ScrollView>;
+  }
+}
+```
+
 `TourGuide` props:
 
 ```ts
